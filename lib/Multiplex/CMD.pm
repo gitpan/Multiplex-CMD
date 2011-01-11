@@ -7,10 +7,10 @@ package Multiplex::CMD;
 
 =head1 VERSION
 
-This documentation describes version 0.01
+This documentation describes version 0.02
 
 =cut
-use version;      our $VERSION = qv( 0.01 );
+use version;      our $VERSION = qv( 0.02 );
 
 use warnings;
 use strict;
@@ -43,7 +43,7 @@ use constant { MAX_BUF => 2 ** 20, MULTIPLEX => 2 ** 5 };
  my %option =
  (
      timeout => 300,    ## global timeout in seconds
-     max_buf => 1024,   ## max number of bytes in each result
+     max_buf => 1024,   ## max number of bytes in each read buffer
      multiplex => 100,  ## max number of children processes
  );
 
@@ -99,7 +99,7 @@ Launches client with the following parameter.
 Returns 1 if successful. Returns 0 otherwise.
 
  timeout   : global timeout in seconds
- max_buf   : max number of bytes in each result
+ max_buf   : max number of bytes in each read buffer
  multiplex : max number of children processes
 
 =cut
@@ -191,16 +191,17 @@ sub run
             {
                 my $handle = $handle[$i];
 
-                $lookup{handle}{$handle} = [ \%config, $io[$i] ];
-
                 if ( $i )
                 {
                     $poll->mask( $handle => POLLIN );
                 }
-                elsif ( $config{length} )
+                else
                 {
+                    next unless $config{length};
                     $poll->mask( $handle => POLLOUT );
                 }
+
+                $lookup{handle}{$handle} = [ \%config, $io[$i] ];
             }
 
             $current ++;
