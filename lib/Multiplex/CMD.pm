@@ -7,10 +7,10 @@ package Multiplex::CMD;
 
 =head1 VERSION
 
-This documentation describes version 0.10
+This documentation describes version 0.03
 
 =cut
-use version;      our $VERSION = qv( 0.10 );
+use version;      our $VERSION = qv( 0.03 );
 
 use warnings;
 use strict;

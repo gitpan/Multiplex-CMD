@@ -3,7 +3,7 @@ Multiplex-CMD
 A multiplexed fork client. Multiplex::CMD is able to run multiple commands
 in parallel by forking children processes.
 
-Version 0.10 is a pure Perl implementation.
+Pure Perl implementation.
 
 INSTALLATION
 
