@@ -7,10 +7,10 @@ package Multiplex::CMD;
 
 =head1 VERSION
 
-This documentation describes version 0.02
+This documentation describes version 0.10
 
 =cut
-use version;      our $VERSION = qv( 0.02 );
+use version;      our $VERSION = qv( 0.10 );
 
 use warnings;
 use strict;
@@ -42,9 +42,10 @@ use constant { MAX_BUF => 2 ** 20, MULTIPLEX => 2 ** 5 };
 
  my %option =
  (
-     timeout => 300,    ## global timeout in seconds
-     max_buf => 1024,   ## max number of bytes in each read buffer
-     multiplex => 100,  ## max number of children processes
+     timeout => 300,     ## global timeout in seconds
+     max_buf => 1024,    ## max number of bytes in each read buffer
+     multiplex => 100,   ## max number of children processes
+     verbose => *STDERR  ## report progress to STDERR
  );
 
  if ( $client->run( %option ) )
@@ -101,6 +102,7 @@ Returns 1 if successful. Returns 0 otherwise.
  timeout   : global timeout in seconds
  max_buf   : max number of bytes in each read buffer
  multiplex : max number of children processes
+ verbose   : report progress to a file handle opened for write
 
 =cut
 sub run
@@ -134,6 +136,7 @@ sub run
     );
 
     my $timeout = $param{timeout};
+    my $verbose = $param{verbose};
     my $multiplex = $param{multiplex} || MULTIPLEX;
     my $max_buf = $param{max_buf} || MAX_BUF;
     my @io = qw( stdin stdout stderr );
@@ -142,6 +145,7 @@ sub run
     my $current = 0;
 
     $multiplex = @target if $multiplex > @target;
+    $verbose = 0 unless $verbose && fileno $verbose && -w $verbose;
 
     while ( $poll->handles || @target )
     {
@@ -268,11 +272,12 @@ sub run
             my $timeout = $config->{$target}{timeout};
             my $lookup = $lookup{target}{$target};
             my $handle = $lookup->{handle};
+            my $status = 'complete';
 
             goto NEXT unless grep { $lookup{handle}{$_} } @$handle;
             next if ! $timeout || $timeout > $time - $lookup->{epoch};
 
-            $error{$target} = 'timeout';
+            $status = $error{$target} = 'timeout';
 
             for my $handle ( @$handle )
             {
@@ -283,6 +288,7 @@ sub run
 
             NEXT: $current --;
             delete $lookup{target}{$target};
+            print $verbose "$target $status.\n" if $verbose;
         }
     }
 

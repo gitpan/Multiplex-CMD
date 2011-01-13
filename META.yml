@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:                Multiplex-CMD
-version:             v0.02
+version:             v0.1
 abstract:            Multiplexed Fork Client
 license:             perl
 author:              

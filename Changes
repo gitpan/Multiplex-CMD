@@ -1,7 +1,10 @@
 Revision history for Multiplex-CMD
 
-0.01    2010-12-26
+0.01    2010-12-21
         First version.
 
 0.02    2011-1-11
         Bug fix on a hanging problem on STDIN (Thanks to Boris Senderzon).
+
+0.10    2011-1-13
+        Minor feature: optional verbose mode for progress report.
